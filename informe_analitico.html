@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Marcos Paulino Sicilia" />
+  <meta name="dcterms.date" content="2026-01-20" />
+  <meta name="keywords" content="Renta Fija, Python, Análisis Cuantitativo, Regresión, Volatilidad" />
+  <title>Informe analítico de fondos de renta fija</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Times New Roman;
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      word-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Informe analítico de fondos de renta fija</h1>
+<p class="subtitle">Análisis automatizado con Python</p>
+<p class="author">Marcos Paulino Sicilia</p>
+<p class="date">2026-01-20</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introducción-al-informe"><span class="toc-section-number">1</span> Introducción al informe</a></li>
+<li><a href="#análisis-de-evolución-histórica"><span class="toc-section-number">2</span> Análisis de evolución histórica</a>
+<ul>
+<li><a href="#lu0175073468"><span class="toc-section-number">2.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918"><span class="toc-section-number">2.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893"><span class="toc-section-number">2.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-dispersión-riesgorendimiento"><span class="toc-section-number">3</span> Análisis de dispersión riesgo/rendimiento</a>
+<ul>
+<li><a href="#lu0175073468-1"><span class="toc-section-number">3.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918-1"><span class="toc-section-number">3.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893-1"><span class="toc-section-number">3.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-distribución-y-volatilidad"><span class="toc-section-number">4</span> Análisis de distribución y volatilidad</a>
+<ul>
+<li><a href="#lu0175073468-2"><span class="toc-section-number">4.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918-2"><span class="toc-section-number">4.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893-2"><span class="toc-section-number">4.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-correlación-de-retornos-mensuales"><span class="toc-section-number">5</span> Análisis de correlación de retornos mensuales</a></li>
+<li><a href="#análisis-de-volatilidad-móvil-de-la-tir"><span class="toc-section-number">6</span> Análisis de volatilidad móvil de la TIR</a>
+<ul>
+<li><a href="#lu0175073468-3"><span class="toc-section-number">6.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918-3"><span class="toc-section-number">6.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893-3"><span class="toc-section-number">6.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-volatilidad-móvil-de-los-retornos"><span class="toc-section-number">7</span> Análisis de volatilidad móvil de los retornos</a>
+<ul>
+<li><a href="#lu0175073468-4"><span class="toc-section-number">7.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918-4"><span class="toc-section-number">7.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893-4"><span class="toc-section-number">7.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-distribución-de-cambios-en-la-tir"><span class="toc-section-number">8</span> Análisis de distribución de cambios en la TIR</a>
+<ul>
+<li><a href="#lu0175073468-5"><span class="toc-section-number">8.1</span> LU0175073468</a></li>
+<li><a href="#lu1727359918-5"><span class="toc-section-number">8.2</span> LU1727359918</a></li>
+<li><a href="#lu0219442893-5"><span class="toc-section-number">8.3</span> LU0219442893</a></li>
+</ul></li>
+<li><a href="#análisis-de-comparativa-frente-a-índice"><span class="toc-section-number">9</span> Análisis de comparativa frente a índice</a>
+<ul>
+<li><a href="#lu0175073468-vs.-bloomberg-us-agg-bond-tr-usd"><span class="toc-section-number">9.1</span> LU0175073468 vs. Bloomberg US Agg Bond TR USD</a></li>
+<li><a href="#lu0219442893-vs.-bloomberg-us-agg-bond-tr-usd"><span class="toc-section-number">9.2</span> LU0219442893 vs. Bloomberg US Agg Bond TR USD</a></li>
+<li><a href="#lu1727359918-vs.-bloomberg-us-agg-bond-tr-usd"><span class="toc-section-number">9.3</span> LU1727359918 vs. Bloomberg US Agg Bond TR USD</a></li>
+</ul></li>
+<li><a href="#análisis-avanzado-de-volatilidad-ft-adapted-volatility"><span class="toc-section-number">10</span> Análisis avanzado de volatilidad (Ft adapted volatility)</a>
+<ul>
+<li><a href="#interpretación-del-parámetro-de-atención-φ"><span class="toc-section-number">10.1</span> Interpretación del parámetro de atención (φ):</a></li>
+</ul></li>
+<li><a href="#análisis-de-regresiones-macroeconómicas"><span class="toc-section-number">11</span> Análisis de regresiones macroeconómicas</a>
+<ul>
+<li><a href="#análisis-de-sensibilidad-individual-por-fondo-isin"><span class="toc-section-number">11.1</span> Análisis de Sensibilidad Individual por Fondo (ISIN)</a>
+<ul>
+<li><a href="#lu0175073468-6"><span class="toc-section-number">11.1.1</span> LU0175073468</a></li>
+<li><a href="#lu0219442893-6"><span class="toc-section-number">11.1.2</span> LU0219442893</a></li>
+<li><a href="#lu1727359918-6"><span class="toc-section-number">11.1.3</span> LU1727359918</a></li>
+</ul></li>
+<li><a href="#conclusión-general-del-modelo-macro"><span class="toc-section-number">11.2</span> Conclusión general del modelo macro</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 data-number="1" id="introducción-al-informe"><span class="header-section-number">1</span> Introducción al informe</h1>
+<p>Este documento es un informe analítico generado automáticamente que detalla el comportamiento y las características de riesgo de los siguientes fondos de inversión: LU0175073468, LU1727359918, LU0219442893.</p>
+<p>Descargo de responsabilidad</p>
+<p>Este informe ha sido generado automáticamente. La información y los análisis presentados se basan únicamente en los datos históricos proporcionados y no deben ser considerados como asesoramiento financiero, de inversión o de cualquier otra índole. Las proyecciones y análisis técnicos son interpretaciones matemáticas de datos pasados y no garantizan resultados futuros.</p>
+<h1 data-number="2" id="análisis-de-evolución-histórica"><span class="header-section-number">2</span> Análisis de evolución histórica</h1>
+<figure>
+<img src="fig/evolucion_historica_3_isins.png" alt="Evolución de TIR y Duración" /><figcaption aria-hidden="true">Evolución de TIR y Duración</figcaption>
+</figure>
+<p>Este análisis describe la trayectoria mensual de la TIR y la duración a lo largo del período de datos disponible.</p>
+<h2 data-number="2.1" id="lu0175073468"><span class="header-section-number">2.1</span> LU0175073468</h2>
+<ul>
+<li><p><strong>TIR</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>alcista</strong>. Comenzó en 2.8300 p.p. y finalizó en 4.0000 p.p. El rango observado fue de 0.1000 a 5.4600 p.p.</p></li>
+<li><p><strong>Duración</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>estable</strong>. Comenzó en 1.91 años y finalizó en 1.68 años. El rango observado fue de 1.31 a 2.43 años.</p></li>
+</ul>
+<h2 data-number="2.2" id="lu1727359918"><span class="header-section-number">2.2</span> LU1727359918</h2>
+<ul>
+<li><p><strong>TIR</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>alcista</strong>. Comenzó en 3.0000 p.p. y finalizó en 4.5900 p.p. El rango observado fue de 0.8000 a 6.5000 p.p.</p></li>
+<li><p><strong>Duración</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>estable</strong>. Comenzó en 1.80 años y finalizó en 2.09 años. El rango observado fue de 1.50 a 2.10 años.</p></li>
+</ul>
+<h2 data-number="2.3" id="lu0219442893"><span class="header-section-number">2.3</span> LU0219442893</h2>
+<ul>
+<li><p><strong>TIR</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>alcista</strong>. Comenzó en 3.3900 p.p. y finalizó en 4.7500 p.p. El rango observado fue de 0.8400 a 6.7000 p.p.</p></li>
+<li><p><strong>Duración</strong> (de 2018-12 a 2025-09): Mostró una tendencia general <strong>estable</strong>. Comenzó en 1.79 años y finalizó en 2.29 años. El rango observado fue de 1.64 a 2.37 años.</p></li>
+</ul>
+<h1 data-number="3" id="análisis-de-dispersión-riesgorendimiento"><span class="header-section-number">3</span> Análisis de dispersión riesgo/rendimiento</h1>
+<figure>
+<img src="fig/dispersion_tir_duracion.png" alt="Dispersión Riesgo/Rendimiento" /><figcaption aria-hidden="true">Dispersión Riesgo/Rendimiento</figcaption>
+</figure>
+<p>Este gráfico posiciona cada activo en función de su rendimiento promedio (TIR promedio) y su riesgo de tipo de interés (duración promedio). La estrella roja marca la media del grupo.</p>
+<h2 data-number="3.1" id="lu0175073468-1"><span class="header-section-number">3.1</span> LU0175073468</h2>
+<ul>
+<li><strong>Posicionamiento</strong>: Se sitúa en el cuadrante de <strong>menor TIR</strong> y <strong>menor duración</strong> en comparación con la media del grupo.</li>
+<li><strong>Perfil analítico</strong>: Corresponde a un perfil de <strong>“Rendimiento bajo, riesgo bajo (perfil conservador)”</strong>. Su TIR promedio fue de 2.8223 con una duración promedio de 1.77.</li>
+</ul>
+<h2 data-number="3.2" id="lu1727359918-1"><span class="header-section-number">3.2</span> LU1727359918</h2>
+<ul>
+<li><strong>Posicionamiento</strong>: Se sitúa en el cuadrante de <strong>menor TIR</strong> y <strong>menor duración</strong> en comparación con la media del grupo.</li>
+<li><strong>Perfil analítico</strong>: Corresponde a un perfil de <strong>“Rendimiento bajo, riesgo bajo (perfil conservador)”</strong>. Su TIR promedio fue de 3.2990 con una duración promedio de 1.83.</li>
+</ul>
+<h2 data-number="3.3" id="lu0219442893-1"><span class="header-section-number">3.3</span> LU0219442893</h2>
+<ul>
+<li><strong>Posicionamiento</strong>: Se sitúa en el cuadrante de <strong>mayor TIR</strong> y <strong>mayor duración</strong> en comparación con la media del grupo.</li>
+<li><strong>Perfil analítico</strong>: Corresponde a un perfil de <strong>“Rendimiento alto, riesgo alto”</strong>. Su TIR promedio fue de 3.8229 con una duración promedio de 1.96.</li>
+</ul>
+<h1 data-number="4" id="análisis-de-distribución-y-volatilidad"><span class="header-section-number">4</span> Análisis de distribución y volatilidad</h1>
+<figure>
+<img src="fig/comparacion_boxplot.png" alt="Distribución de TIR y Duración" /><figcaption aria-hidden="true">Distribución de TIR y Duración</figcaption>
+</figure>
+<p>El gráfico de cajas muestra la mediana (línea central), los cuartiles (caja) y posibles valores atípicos (puntos) para TIR y duración, ofreciendo una visión de su estabilidad.</p>
+<h2 data-number="4.1" id="lu0175073468-2"><span class="header-section-number">4.1</span> LU0175073468</h2>
+<ul>
+<li><strong>Distribución de TIR</strong>:
+<ul>
+<li>Mediana: 2.7500 puntos porcentuales.</li>
+<li>Rango del 50% central (IQR): De 0.9875 a 4.6075 pp. (Amplitud IQR: 3.6200 pp).</li>
+<li><em>Volatilidad</em>: Un IQR más bajo sugiere mayor consistencia histórica en la TIR (los datos están más agrupados).</li>
+</ul></li>
+<li><strong>Distribución de duración</strong>:
+<ul>
+<li>Mediana: 1.80 años.</li>
+<li>Rango del 50% central (IQR): De 1.63 a 1.89 años (Amplitud IQR: 0.26 años).</li>
+<li><em>Consistencia del riesgo</em>: Un IQR bajo sugiere que el perfil de riesgo de tipo de interés ha sido más estable.</li>
+</ul></li>
+</ul>
+<h2 data-number="4.2" id="lu1727359918-2"><span class="header-section-number">4.2</span> LU1727359918</h2>
+<ul>
+<li><strong>Distribución de TIR</strong>:
+<ul>
+<li>Mediana: 2.9500 puntos porcentuales.</li>
+<li>Rango del 50% central (IQR): De 1.5000 a 4.9975 pp. (Amplitud IQR: 3.4975 pp).</li>
+<li><em>Volatilidad</em>: Un IQR más bajo sugiere mayor consistencia histórica en la TIR (los datos están más agrupados).</li>
+</ul></li>
+<li><strong>Distribución de duración</strong>:
+<ul>
+<li>Mediana: 1.88 años.</li>
+<li>Rango del 50% central (IQR): De 1.70 a 1.96 años (Amplitud IQR: 0.26 años).</li>
+<li><em>Consistencia del riesgo</em>: Un IQR bajo sugiere que el perfil de riesgo de tipo de interés ha sido más estable.</li>
+</ul></li>
+</ul>
+<h2 data-number="4.3" id="lu0219442893-2"><span class="header-section-number">4.3</span> LU0219442893</h2>
+<ul>
+<li><strong>Distribución de TIR</strong>:
+<ul>
+<li>Mediana: 3.5250 puntos porcentuales.</li>
+<li>Rango del 50% central (IQR): De 2.0488 a 5.7000 pp. (Amplitud IQR: 3.6513 pp).</li>
+<li><em>Volatilidad</em>: Un IQR más bajo sugiere mayor consistencia histórica en la TIR (los datos están más agrupados).</li>
+</ul></li>
+<li><strong>Distribución de duración</strong>:
+<ul>
+<li>Mediana: 1.90 años.</li>
+<li>Rango del 50% central (IQR): De 1.83 a 2.09 años (Amplitud IQR: 0.26 años).</li>
+<li><em>Consistencia del riesgo</em>: Un IQR bajo sugiere que el perfil de riesgo de tipo de interés ha sido más estable.</li>
+</ul></li>
+</ul>
+<h1 data-number="5" id="análisis-de-correlación-de-retornos-mensuales"><span class="header-section-number">5</span> Análisis de correlación de retornos mensuales</h1>
+<figure>
+<img src="fig/heatmap_correlacion_retornos.png" alt="Heatmap de Correlación de Retornos" /><figcaption aria-hidden="true">Heatmap de Correlación de Retornos</figcaption>
+</figure>
+<p>La matriz de correlación mide cómo se mueven los <strong>retornos mensuales</strong> (calculados desde ‘precio’) de los activos entre sí. Un valor cercano a +1 indica que sus ganancias/pérdidas tienden a ocurrir simultáneamente; cerca de -1, tienden a moverse en direcciones opuestas; cerca de 0, sus movimientos no tienen una relación lineal clara. Este análisis es clave para evaluar la diversificación.</p>
+<ul>
+<li><strong>Mayor correlación</strong>: El par <strong>LU0175073468 y LU1727359918</strong> (Coef: <strong>0.90</strong>) (correlación positiva fuerte). Sus retornos tienden a moverse muy sincronizados.</li>
+<li><strong>Menor correlación (o más negativa)</strong>: El par <strong>LU0219442893 y LU0175073468</strong> (Coef: <strong>0.63</strong>) (correlación positiva moderada). Sus retornos tienen la menor sincronía (o la mayor tendencia a moverse en direcciones opuestas).</li>
+<li><strong>Implicación para diversificación</strong>: Combinar activos cuyos <strong>retornos</strong> tengan baja correlación (idealmente &lt; 0.4) ayuda a reducir la volatilidad de la cartera. Correlaciones altas (&gt;0.7) indican poca diversificación entre esos activos.</li>
+</ul>
+<h1 data-number="6" id="análisis-de-volatilidad-móvil-de-la-tir"><span class="header-section-number">6</span> Análisis de volatilidad móvil de la TIR</h1>
+<figure>
+<img src="fig/volatilidad_movil_tir.png" alt="Volatilidad Móvil de la TIR" /><figcaption aria-hidden="true">Volatilidad Móvil de la TIR</figcaption>
+</figure>
+<p>Este gráfico muestra la evolución de la volatilidad (desviación estándar móvil de 12 meses) de la <strong>TIR (yield)</strong>. Mide la estabilidad del rendimiento ofrecido por el fondo, lo cual refleja la incertidumbre del mercado sobre tipos de interés y riesgo.</p>
+<h2 data-number="6.1" id="lu0175073468-3"><span class="header-section-number">6.1</span> LU0175073468</h2>
+<ul>
+<li><strong>Volatilidad promedio (TIR)</strong>: 0.4601 puntos porcentuales (p.p.).</li>
+<li><strong>Pico de volatilidad (TIR)</strong>: Alcanzó su máxima inestabilidad de rendimiento alrededor de <strong>2022-11</strong>, con un valor de 1.2710 p.p.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad en la TIR suelen coincidir con <strong>mayor incertidumbre en el mercado</strong> sobre tipos de interés o riesgo. Valles indican un entorno de rendimientos más estable.</li>
+</ul>
+<h2 data-number="6.2" id="lu1727359918-3"><span class="header-section-number">6.2</span> LU1727359918</h2>
+<ul>
+<li><strong>Volatilidad promedio (TIR)</strong>: 0.5017 puntos porcentuales (p.p.).</li>
+<li><strong>Pico de volatilidad (TIR)</strong>: Alcanzó su máxima inestabilidad de rendimiento alrededor de <strong>2023-01</strong>, con un valor de 1.4019 p.p.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad en la TIR suelen coincidir con <strong>mayor incertidumbre en el mercado</strong> sobre tipos de interés o riesgo. Valles indican un entorno de rendimientos más estable.</li>
+</ul>
+<h2 data-number="6.3" id="lu0219442893-3"><span class="header-section-number">6.3</span> LU0219442893</h2>
+<ul>
+<li><strong>Volatilidad promedio (TIR)</strong>: 0.5652 puntos porcentuales (p.p.).</li>
+<li><strong>Pico de volatilidad (TIR)</strong>: Alcanzó su máxima inestabilidad de rendimiento alrededor de <strong>2022-11</strong>, con un valor de 1.6113 p.p.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad en la TIR suelen coincidir con <strong>mayor incertidumbre en el mercado</strong> sobre tipos de interés o riesgo. Valles indican un entorno de rendimientos más estable.</li>
+</ul>
+<h1 data-number="7" id="análisis-de-volatilidad-móvil-de-los-retornos"><span class="header-section-number">7</span> Análisis de volatilidad móvil de los retornos</h1>
+<figure>
+<img src="fig/volatilidad_movil_retornos.png" alt="Volatilidad Móvil de Retornos" /><figcaption aria-hidden="true">Volatilidad Móvil de Retornos</figcaption>
+</figure>
+<p>Este gráfico muestra la volatilidad (desviación estándar móvil de 12 meses) de los <strong>retornos mensuales</strong>. Mide el riesgo de precio que ha experimentado el inversor.</p>
+<h2 data-number="7.1" id="lu0175073468-4"><span class="header-section-number">7.1</span> LU0175073468</h2>
+<ul>
+<li><strong>Volatilidad promedio (retornos)</strong>: 0.42%.</li>
+<li><strong>Pico de volatilidad (retornos)</strong>: Alcanzó su máxima inestabilidad de precio alrededor de <strong>2023-03</strong>, con un valor de 0.67%.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad indican períodos de alto riesgo y retornos erráticos; valles indican estabilidad en los retornos.</li>
+</ul>
+<h2 data-number="7.2" id="lu1727359918-4"><span class="header-section-number">7.2</span> LU1727359918</h2>
+<ul>
+<li><strong>Volatilidad promedio (retornos)</strong>: 0.45%.</li>
+<li><strong>Pico de volatilidad (retornos)</strong>: Alcanzó su máxima inestabilidad de precio alrededor de <strong>2023-01</strong>, con un valor de 0.78%.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad indican períodos de alto riesgo y retornos erráticos; valles indican estabilidad en los retornos.</li>
+</ul>
+<h2 data-number="7.3" id="lu0219442893-4"><span class="header-section-number">7.3</span> LU0219442893</h2>
+<ul>
+<li><strong>Volatilidad promedio (retornos)</strong>: 0.67%.</li>
+<li><strong>Pico de volatilidad (retornos)</strong>: Alcanzó su máxima inestabilidad de precio alrededor de <strong>2020-07</strong>, con un valor de 1.35%.</li>
+<li><strong>Interpretación</strong>: Picos de volatilidad indican períodos de alto riesgo y retornos erráticos; valles indican estabilidad en los retornos.</li>
+</ul>
+<h1 data-number="8" id="análisis-de-distribución-de-cambios-en-la-tir"><span class="header-section-number">8</span> Análisis de distribución de cambios en la TIR</h1>
+<figure>
+<img src="fig/distribucion_cambios_mensuales.png" alt="Distribución de Cambios de TIR (KDE)" /><figcaption aria-hidden="true">Distribución de Cambios de TIR (KDE)</figcaption>
+</figure>
+<p>Este análisis estudia la forma de la distribución de probabilidad (estimada mediante KDE) de los <strong>cambios mensuales en la TIR (yield)</strong>. A diferencia de un histograma, esta curva suavizada representa la densidad de probabilidad, ayudando a entender la probabilidad de movimientos bruscos en el rendimiento.</p>
+<h2 data-number="8.1" id="lu0175073468-5"><span class="header-section-number">8.1</span> LU0175073468</h2>
+<ul>
+<li><strong>ANÁLISIS DE DISTRIBUCIÓN</strong> (Basado en 81 meses):
+<ul>
+<li><strong>Asimetría (Skewness)</strong>: -0.524 - Fuertemente asimétrica (negativa (cambios a la baja más extremos))</li>
+<li><strong>Curtosis (Exceso)</strong>: 4.076 - Leptocúrtica (colas pesadas)</li>
+<li><strong>Riesgo de cola</strong>: ALTO - probabilidad de movimientos extremos en TIR</li>
+</ul></li>
+<li><strong>RECOMENDACIONES</strong>:
+<ul>
+<li>Alto riesgo de eventos extremos - considerar coberturas</li>
+<li>Sesgo negativo: mayor probabilidad de caídas bruscas en TIR</li>
+<li>Presencia de movimientos extremos (&gt;3σ) detectados</li>
+</ul></li>
+</ul>
+<h2 data-number="8.2" id="lu1727359918-5"><span class="header-section-number">8.2</span> LU1727359918</h2>
+<ul>
+<li><strong>ANÁLISIS DE DISTRIBUCIÓN</strong> (Basado en 81 meses):
+<ul>
+<li><strong>Asimetría (Skewness)</strong>: 0.432 - Moderadamente asimétrica (positiva (cambios al alza más extremos))</li>
+<li><strong>Curtosis (Exceso)</strong>: 1.737 - Leptocúrtica (colas pesadas)</li>
+<li><strong>Riesgo de cola</strong>: ALTO - probabilidad de movimientos extremos en TIR</li>
+</ul></li>
+<li><strong>RECOMENDACIONES</strong>:
+<ul>
+<li>Alto riesgo de eventos extremos - considerar coberturas</li>
+<li>Presencia de movimientos extremos (&gt;3σ) detectados</li>
+</ul></li>
+</ul>
+<h2 data-number="8.3" id="lu0219442893-5"><span class="header-section-number">8.3</span> LU0219442893</h2>
+<ul>
+<li><strong>ANÁLISIS DE DISTRIBUCIÓN</strong> (Basado en 81 meses):
+<ul>
+<li><strong>Asimetría (Skewness)</strong>: 0.451 - Moderadamente asimétrica (positiva (cambios al alza más extremos))</li>
+<li><strong>Curtosis (Exceso)</strong>: 0.241 - Mesocúrtica (similar a normal)</li>
+<li><strong>Riesgo de cola</strong>: MODERADO - probabilidad de movimientos extremos en TIR</li>
+</ul></li>
+</ul>
+<h1 data-number="9" id="análisis-de-comparativa-frente-a-índice"><span class="header-section-number">9</span> Análisis de comparativa frente a índice</h1>
+<p>Este análisis compara el <strong>retorno mensual del fondo</strong> contra el retorno mensual de su índice de referencia asignado. Ambos retornos están expresados en <strong>formato porcentaje (ej: 1.5%)</strong>.</p>
+<h2 data-number="9.1" id="lu0175073468-vs.-bloomberg-us-agg-bond-tr-usd"><span class="header-section-number">9.1</span> LU0175073468 vs. Bloomberg US Agg Bond TR USD</h2>
+<figure>
+<img src="fig/comparativa_LU0175073468.png" alt="Comparativa Fondo vs Índice para LU0175073468" /><figcaption aria-hidden="true">Comparativa Fondo vs Índice para LU0175073468</figcaption>
+</figure>
+<ul>
+<li><strong>Correlación de retornos</strong>: <strong>fuerte y positiva (0.77)</strong>: El fondo tiende a moverse en la misma dirección que su índice.</li>
+<li><strong>Tracking error</strong>: <strong>1.35% mensual</strong>. un T.E. bajo (&lt; 0.5%) sugiere gestión pasiva. Un T.E. alto (&gt; 1.5%) indica gestión activa.</li>
+</ul>
+<h2 data-number="9.2" id="lu0219442893-vs.-bloomberg-us-agg-bond-tr-usd"><span class="header-section-number">9.2</span> LU0219442893 vs. Bloomberg US Agg Bond TR USD</h2>
+<figure>
+<img src="fig/comparativa_LU0219442893.png" alt="Comparativa Fondo vs Índice para LU0219442893" /><figcaption aria-hidden="true">Comparativa Fondo vs Índice para LU0219442893</figcaption>
+</figure>
+<ul>
+<li><strong>Correlación de retornos</strong>: <strong>fuerte y positiva (0.71)</strong>: El fondo tiende a moverse en la misma dirección que su índice.</li>
+<li><strong>Tracking error</strong>: <strong>1.27% mensual</strong>. un T.E. bajo (&lt; 0.5%) sugiere gestión pasiva. Un T.E. alto (&gt; 1.5%) indica gestión activa.</li>
+</ul>
+<h2 data-number="9.3" id="lu1727359918-vs.-bloomberg-us-agg-bond-tr-usd"><span class="header-section-number">9.3</span> LU1727359918 vs. Bloomberg US Agg Bond TR USD</h2>
+<figure>
+<img src="fig/comparativa_LU1727359918.png" alt="Comparativa Fondo vs Índice para LU1727359918" /><figcaption aria-hidden="true">Comparativa Fondo vs Índice para LU1727359918</figcaption>
+</figure>
+<ul>
+<li><strong>Correlación de retornos</strong>: <strong>fuerte y positiva (0.81)</strong>: El fondo tiende a moverse en la misma dirección que su índice.</li>
+<li><strong>Tracking error</strong>: <strong>1.30% mensual</strong>. un T.E. bajo (&lt; 0.5%) sugiere gestión pasiva. Un T.E. alto (&gt; 1.5%) indica gestión activa.</li>
+</ul>
+<h1 data-number="10" id="análisis-avanzado-de-volatilidad-ft-adapted-volatility"><span class="header-section-number">10</span> Análisis avanzado de volatilidad (Ft adapted volatility)</h1>
+<p>Este análisis aplica una metodología avanzada (<strong>Ft adapted volatility</strong>) basada en la teoría de la <strong>inatención racional</strong>. A diferencia de la volatilidad móvil tradicional, este modelo utiliza un proceso <strong>autoarima</strong> para filtrar los retornos (eliminando autocorrelación) y estima la volatilidad basándose en los residuos o “shocks” puros.</p>
+<p>El modelo estima un parámetro <strong>Phi (φ)</strong> para cada fondo, que representa la <strong>“probabilidad de llegada de noticias”</strong>: un <strong>φ alto</strong> indica que el fondo es muy sensible a lo reciente (“memoria corta”). Un <strong>φ bajo</strong> indica que el riesgo es más estructural y estable (“memoria larga”).</p>
+<figure>
+<img src="fig/ft_adapted_volatility.png" alt="Evolución de la Volatilidad Adaptada" /><figcaption aria-hidden="true">Evolución de la Volatilidad Adaptada</figcaption>
+</figure>
+<h2 data-number="10.1" id="interpretación-del-parámetro-de-atención-φ"><span class="header-section-number">10.1</span> Interpretación del parámetro de atención (φ):</h2>
+<ul>
+<li><strong>LU0175073468</strong>: φ = 0.0617 [<strong>ARIMA(1, 0, 1)</strong>]. Reactividad moderada.</li>
+<li><strong>LU1727359918</strong>: φ = 0.0494 [<strong>ARIMA(1, 0, 1)</strong>]. Baja reactividad. Riesgo estructural estable.</li>
+<li><strong>LU0219442893</strong>: φ = 0.0494 [<strong>ARIMA(0, 0, 0)</strong>]. Baja reactividad. Riesgo estructural estable.</li>
+</ul>
+<p><strong>Conclusión del modelo:</strong></p>
+<ul>
+<li><strong>Selección del modelo:</strong> El algoritmo ha seleccionado automáticamente el mejor modelo ARIMA(p,d,q) para cada fondo minimizando el criterio AIC, asegurando que la volatilidad se calcula sobre los <em>shocks</em> reales.</li>
+<li><strong>Dinámica del riesgo:</strong> Esta métrica permite detectar <strong>cambios de régimen</strong> (saltos de volatilidad) de forma casi instantánea, ajustándose dinámicamente a las condiciones de mercado en lugar de suavizarlas.</li>
+</ul>
+<h1 data-number="11" id="análisis-de-regresiones-macroeconómicas"><span class="header-section-number">11</span> Análisis de regresiones macroeconómicas</h1>
+<p>En esta sección se analizan las regresiones múltiples realizadas entre el <strong>retorno mensual del fondo</strong> (variable dependiente) y tres variables explicativas: el <strong>retorno de su índice de referencia</strong>, el <strong>nivel del tipo de interés</strong> y el <strong>nivel de inflación</strong> correspondientes. Los resultados numéricos (coeficientes, p-values, R²) se encuentran en el fichero <code>resultados_regresion_macro.csv</code>. El mapeo de variables usado se encuentra en <code>mapeo_variables_macro.csv</code>.</p>
+<h2 data-number="11.1" id="análisis-de-sensibilidad-individual-por-fondo-isin"><span class="header-section-number">11.1</span> Análisis de Sensibilidad Individual por Fondo (ISIN)</h2>
+<h3 data-number="11.1.1" id="lu0175073468-6"><span class="header-section-number">11.1.1</span> LU0175073468</h3>
+<ul>
+<li><strong>R-cuadrado (0.70)</strong>:
+<ul>
+<li><em>Análisis</em>: Un <strong>70%</strong> de la variación de los retornos de este fondo es explicado por el modelo (índice, tipos, inflación). Un R² alto (&gt;0.7) implica alta dependencia de estos factores.</li>
+</ul></li>
+<li><strong>Alfa (gestión activa) (0.26%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Es el retorno mensual promedio que <strong>no</strong> es explicado por los factores de riesgo (índice, tipos, inflación). Mide la habilidad del gestor.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Alfa positivo y significativo</strong>. El fondo ha generado un valor extra del 0.26% mensual por encima de lo esperado.</li>
+</ul></li>
+<li><strong>Beta vs. Bloomberg US Agg Bond TR USD (0.20%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada 1% de retorno del índice, este fondo obtiene un <strong>0.20%</strong> de retorno.</li>
+<li><em>Análisis del coeficiente</em>: Valor <strong>inferior a 1.0</strong>, sugiere un perfil más defensivo.</li>
+</ul></li>
+<li><strong>Beta vs. Tipointeres_EEUU_corto (0.06%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto (100 pbs) en el tipo de interés, el retorno mensual del fondo cambia un <strong>0.06%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, sensibilidad casi nula a los tipos.</li>
+</ul></li>
+<li><strong>Beta vs. Inflacion_EEUU (-0.06%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto en la inflación, el retorno mensual cambia un <strong>-0.06%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, la inflación no es un factor relevante.</li>
+</ul></li>
+</ul>
+<h3 data-number="11.1.2" id="lu0219442893-6"><span class="header-section-number">11.1.2</span> LU0219442893</h3>
+<ul>
+<li><strong>R-cuadrado (0.56)</strong>:
+<ul>
+<li><em>Análisis</em>: Un <strong>56%</strong> de la variación de los retornos de este fondo es explicado por el modelo (índice, tipos, inflación). Un R² alto (&gt;0.7) implica alta dependencia de estos factores.</li>
+</ul></li>
+<li><strong>Alfa (gestión activa) (0.18%)</strong> - (No significativo):
+<ul>
+<li><em>Interpretación</em>: Es el retorno mensual promedio que <strong>no</strong> es explicado por los factores de riesgo (índice, tipos, inflación). Mide la habilidad del gestor.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Alfa no significativo</strong>. El rendimiento del fondo está en línea con lo explicado por sus factores de riesgo (Alfa = 0).</li>
+</ul></li>
+<li><strong>Beta vs. Bloomberg US Agg Bond TR USD (0.29%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada 1% de retorno del índice, este fondo obtiene un <strong>0.29%</strong> de retorno.</li>
+<li><em>Análisis del coeficiente</em>: Valor <strong>inferior a 1.0</strong>, sugiere un perfil más defensivo.</li>
+</ul></li>
+<li><strong>Beta vs. Tipointeres_EEUU_corto (0.07%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto (100 pbs) en el tipo de interés, el retorno mensual del fondo cambia un <strong>0.07%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, sensibilidad casi nula a los tipos.</li>
+</ul></li>
+<li><strong>Beta vs. Inflacion_EEUU (-0.06%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto en la inflación, el retorno mensual cambia un <strong>-0.06%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, la inflación no es un factor relevante.</li>
+</ul></li>
+</ul>
+<h3 data-number="11.1.3" id="lu1727359918-6"><span class="header-section-number">11.1.3</span> LU1727359918</h3>
+<ul>
+<li><strong>R-cuadrado (0.75)</strong>:
+<ul>
+<li><em>Análisis</em>: Un <strong>75%</strong> de la variación de los retornos de este fondo es explicado por el modelo (índice, tipos, inflación). Un R² alto (&gt;0.7) implica alta dependencia de estos factores.</li>
+</ul></li>
+<li><strong>Alfa (gestión activa) (0.27%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Es el retorno mensual promedio que <strong>no</strong> es explicado por los factores de riesgo (índice, tipos, inflación). Mide la habilidad del gestor.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Alfa positivo y significativo</strong>. El fondo ha generado un valor extra del 0.27% mensual por encima de lo esperado.</li>
+</ul></li>
+<li><strong>Beta vs. Bloomberg US Agg Bond TR USD (0.23%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada 1% de retorno del índice, este fondo obtiene un <strong>0.23%</strong> de retorno.</li>
+<li><em>Análisis del coeficiente</em>: Valor <strong>inferior a 1.0</strong>, sugiere un perfil más defensivo.</li>
+</ul></li>
+<li><strong>Beta vs. Tipointeres_EEUU_corto (0.06%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto (100 pbs) en el tipo de interés, el retorno mensual del fondo cambia un <strong>0.06%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, sensibilidad casi nula a los tipos.</li>
+</ul></li>
+<li><strong>Beta vs. Inflacion_EEUU (-0.06%)</strong> - (Estadísticamente significativo, p &lt; 0.05):
+<ul>
+<li><em>Interpretación</em>: Por cada subida de 1 punto en la inflación, el retorno mensual cambia un <strong>-0.06%</strong>.</li>
+<li><em>Análisis del coeficiente</em>: <strong>Cercano a cero</strong>, la inflación no es un factor relevante.</li>
+</ul></li>
+</ul>
+<h2 data-number="11.2" id="conclusión-general-del-modelo-macro"><span class="header-section-number">11.2</span> Conclusión general del modelo macro</h2>
+<p>El análisis de regresiones permite cuantificar las fuentes de retornos de los fondos:</p>
+<ol type="1">
+<li><strong>Beta vs. Índice</strong>: Muestra qué parte del retorno se debe al seguimiento del mercado (benchmark).</li>
+<li><strong>Beta vs. Tipo de Interés</strong>: Es el factor macroeconómico clave. Cuantifica la sensibilidad del retorno a cambios en la política monetaria (duración).</li>
+<li><strong>Beta vs. Inflación</strong>: Mide la capacidad del fondo para proteger el retorno en entornos inflacionarios.</li>
+<li><strong>Alfa</strong>: Mide el retorno extra (o faltante) que no se debe a estos factores. Es la métrica clave para evaluar la habilidad de gestión activa.</li>
+<li><strong>P-value (significatividad)</strong>: Nos dice si podemos confiar en estos coeficientes. Un p-value &lt; 0.05 sugiere que el factor es estadísticamente relevante para explicar el retorno.</li>
+</ol>
+<p>El <strong>R²</strong> (R-cuadrado) indica el grado de éxito de este modelo. Un R² alto (ej. &gt; 70%) significa que estos tres factores (más el Alfa) explican la gran mayoría de los movimientos del fondo.</p>
+</body>
+</html>
